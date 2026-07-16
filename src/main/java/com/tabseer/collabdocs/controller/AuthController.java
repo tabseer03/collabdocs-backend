@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import com.tabseer.collabdocs.dto.response.MeResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -28,5 +30,10 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request) {
 
         return userService.login(request);
+    }
+
+    @GetMapping("/me")
+    public MeResponse me(Authentication authentication) {
+        return userService.getCurrentUser(authentication);
     }
 }

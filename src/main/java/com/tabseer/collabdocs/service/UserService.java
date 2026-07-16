@@ -13,6 +13,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.tabseer.collabdocs.dto.response.MeResponse;
+import org.springframework.security.core.Authentication;
+import com.tabseer.collabdocs.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -67,4 +70,19 @@ public class UserService {
                 .tokenType("Bearer")
                 .build();
     }
+
+    public MeResponse getCurrentUser(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return MeResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .build();
+    }
+
 }
