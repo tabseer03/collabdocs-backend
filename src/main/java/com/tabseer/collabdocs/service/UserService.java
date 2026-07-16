@@ -1,11 +1,16 @@
 package com.tabseer.collabdocs.service;
 
+import com.tabseer.collabdocs.dto.request.LoginRequest;
 import com.tabseer.collabdocs.dto.request.RegisterRequest;
+import com.tabseer.collabdocs.dto.response.AuthResponse;
 import com.tabseer.collabdocs.dto.response.UserResponse;
 import com.tabseer.collabdocs.entity.User;
 import com.tabseer.collabdocs.exception.ResourceAlreadyExistsException;
 import com.tabseer.collabdocs.repository.UserRepository;
+import com.tabseer.collabdocs.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +20,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
     public UserResponse register(RegisterRequest request) {
 
@@ -39,6 +48,23 @@ public class UserService {
                 .username(savedUser.getUsername())
                 .email(savedUser.getEmail())
                 .createdAt(savedUser.getCreatedAt())
+                .build();
+    }
+
+    public AuthResponse login(LoginRequest request) {
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        String token = jwtService.generateToken(request.getEmail());
+
+        return AuthResponse.builder()
+                .token(token)
+                .tokenType("Bearer")
                 .build();
     }
 }

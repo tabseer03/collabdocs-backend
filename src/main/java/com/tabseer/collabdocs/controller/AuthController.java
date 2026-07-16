@@ -1,6 +1,8 @@
 package com.tabseer.collabdocs.controller;
 
+import com.tabseer.collabdocs.dto.request.LoginRequest;
 import com.tabseer.collabdocs.dto.request.RegisterRequest;
+import com.tabseer.collabdocs.dto.response.AuthResponse;
 import com.tabseer.collabdocs.dto.response.UserResponse;
 import com.tabseer.collabdocs.service.UserService;
 import jakarta.validation.Valid;
@@ -19,5 +21,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return userService.register(request);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(
+            @Valid @RequestBody LoginRequest request) {
+
+        return userService.login(request);
     }
 }
