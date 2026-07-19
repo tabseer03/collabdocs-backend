@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CollabDocs WebSocket Test</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            width:700px;
+            margin:auto;
+            margin-top:40px;
+        }
+
+        #messages{
+            border:1px solid #ccc;
+            height:350px;
+            overflow:auto;
+            padding:10px;
+            margin-bottom:15px;
+        }
+
+        input{
+            width:75%;
+            padding:8px;
+        }
+
+        button{
+            padding:8px 20px;
+        }
+    </style>
+
+</head>
+<body>
+
+<h2>CollabDocs WebSocket Test</h2>
+
+<div id="messages"></div>
+
+
+
+<input id="message"
+       placeholder="Type message...">
+
+<button onclick="sendMessage()">
+    Send
+</button>
+<script>
+
+    let stompClient = null;
+
+    const documentId = "8e87c7f4-f8e7-4020-a80c-cd6dca5dbeb2";
+
+    function connect(){
+
+        const socket = new SockJS('/ws');
+
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (){
+
+            console.log("Connected");
+
+            stompClient.subscribe('/topic/document/' + documentId, function(message){
+
+                const msg = JSON.parse(message.body);
+
+                const div = document.getElementById("messages");
+
+                div.innerHTML +=
+                    "<p>"
+                    + msg.content +
+                    " (v"
+                    + msg.version
+                    + ")</p>";
+
+            });
+
+        });
+
+    }
+
+    function sendMessage(){
+
+        const text = document.getElementById("message").value;
+
+        stompClient.send("/app/edit", {}, JSON.stringify({
+
+            documentId: documentId,
+
+            content: text,
+
+            version: 1
+
+        }));
+
+        document.getElementById("message").value = "";
+    }
+
+    connect();
+
+</script>
+
+</body>
+</html>

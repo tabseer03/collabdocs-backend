@@ -1,11 +1,15 @@
 package com.tabseer.collabdocs.controller;
 
 import com.tabseer.collabdocs.dto.request.CreateDocumentRequest;
+import com.tabseer.collabdocs.dto.request.ShareDocumentRequest;
 import com.tabseer.collabdocs.dto.request.UpdateDocumentRequest;
+import com.tabseer.collabdocs.dto.request.UpdatePermissionRequest;
+import com.tabseer.collabdocs.dto.response.DocumentPermissionResponse;
 import com.tabseer.collabdocs.dto.response.DocumentResponse;
 import com.tabseer.collabdocs.service.DocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +31,11 @@ public class DocumentController {
     }
 
     @GetMapping("/{id}")
-    public DocumentResponse getDocument(@PathVariable String id) {
+    public DocumentResponse getDocument(
+            @PathVariable String id,
+            Authentication authentication) {
 
-        return documentService.getDocumentById(id);
+        return documentService.getDocumentById(id, authentication);
     }
 
     @GetMapping
@@ -54,5 +60,54 @@ public class DocumentController {
             Authentication authentication) {
 
         documentService.deleteDocument(id, authentication);
+    }
+
+    @PostMapping("/{id}/share")
+    public ResponseEntity<String> shareDocument(
+            @PathVariable String id,
+            @Valid @RequestBody ShareDocumentRequest request,
+            Authentication authentication) {
+
+        documentService.shareDocument(id, request, authentication);
+
+        return ResponseEntity.ok("Document shared successfully");
+    }
+
+    @GetMapping("/{id}/permissions")
+    public List<DocumentPermissionResponse> getPermissions(
+            @PathVariable String id,
+            Authentication authentication) {
+
+        return documentService.getDocumentPermissions(id, authentication);
+    }
+
+    @PatchMapping("/{documentId}/permissions/{userId}")
+    public ResponseEntity<String> updatePermission(
+            @PathVariable String documentId,
+            @PathVariable String userId,
+            @RequestBody @Valid UpdatePermissionRequest request,
+            Authentication authentication) {
+
+        documentService.updatePermission(
+                documentId,
+                userId,
+                request,
+                authentication);
+
+        return ResponseEntity.ok("Permission updated successfully");
+    }
+
+    @DeleteMapping("/{documentId}/permissions/{userId}")
+    public ResponseEntity<String> removePermission(
+            @PathVariable String documentId,
+            @PathVariable String userId,
+            Authentication authentication) {
+
+        documentService.removePermission(
+                documentId,
+                userId,
+                authentication);
+
+        return ResponseEntity.ok("Permission removed successfully");
     }
 }
