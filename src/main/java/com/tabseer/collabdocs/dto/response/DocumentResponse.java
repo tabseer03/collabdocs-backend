@@ -1,5 +1,6 @@
 package com.tabseer.collabdocs.dto.response;
 
+import com.tabseer.collabdocs.entity.PermissionRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,4 +24,6 @@ public class DocumentResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private PermissionRole permission;
 }

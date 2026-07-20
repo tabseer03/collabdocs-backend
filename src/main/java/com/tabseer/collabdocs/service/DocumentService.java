@@ -72,9 +72,12 @@ public class DocumentService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Document not found"));
 
-        getPermission(document, user);
+        DocumentPermission permission = getPermission(document, user);
 
-        return mapToResponse(document);
+        DocumentResponse response = mapToResponse(document);
+        response.setPermission(permission.getRole());
+
+        return response;
     }
 
     public List<DocumentResponse> getMyDocuments(Authentication authentication) {
@@ -124,7 +127,10 @@ public class DocumentService {
 
         Document updated = documentRepository.save(document);
 
-        return mapToResponse(updated);
+        DocumentResponse response = mapToResponse(document);
+        response.setPermission(permission.getRole());
+
+        return response;
     }
 
     public void deleteDocument(String id,
@@ -206,21 +212,19 @@ public class DocumentService {
             String documentId,
             Authentication authentication) {
 
-        User owner = getCurrentUser(authentication);
+        User user = getCurrentUser(authentication);
 
         Document document = documentRepository.findById(UUID.fromString(documentId))
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Document not found"));
 
-        DocumentPermission permission = getPermission(document, owner);
-
-        if (permission.getRole() != PermissionRole.OWNER) {
-            throw new RuntimeException("Only the owner can view permissions");
-        }
+        // Just verify the user has access
+        getPermission(document, user);
 
         return documentPermissionRepository.findByDocument(document)
                 .stream()
                 .map(p -> DocumentPermissionResponse.builder()
+                        .userId(p.getUser().getId().toString())
                         .username(p.getUser().getUsername())
                         .email(p.getUser().getEmail())
                         .role(p.getRole())

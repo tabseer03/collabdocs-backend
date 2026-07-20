@@ -8,6 +8,8 @@ import lombok.Getter;
 @Builder
 public class DocumentPermissionResponse {
 
+    private String userId;
+
     private String username;
 
     private String email;
