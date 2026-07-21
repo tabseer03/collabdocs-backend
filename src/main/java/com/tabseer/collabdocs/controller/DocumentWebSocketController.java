@@ -1,5 +1,6 @@
 package com.tabseer.collabdocs.controller;
 
+import com.tabseer.collabdocs.dto.message.CursorMessage;
 import com.tabseer.collabdocs.dto.message.EditMessage;
 import com.tabseer.collabdocs.dto.message.PresenceMessage;
 import com.tabseer.collabdocs.dto.message.PresenceRequest;
@@ -70,6 +71,15 @@ public class DocumentWebSocketController {
                         .users(presenceService.getOnlineUsers(
                                 request.getDocumentId()))
                         .build()
+        );
+    }
+
+    @MessageMapping("/cursor")
+    public void cursor(@Payload CursorMessage message) {
+
+        messagingTemplate.convertAndSend(
+                "/topic/cursor/" + message.getDocumentId(),
+                message
         );
     }
 }
